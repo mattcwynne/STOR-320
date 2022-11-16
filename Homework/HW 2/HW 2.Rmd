@@ -1,0 +1,141 @@
+---
+title: "Homework 2"
+author: "FIRSTNAME LASTNAME"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  1-3 (Pgs. 49-50); 2-4 (Pg. 51); 2,4 (Pg. 54); 1-4 (Pg. 58)
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining. 
+
+```{r, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(nycflights13)
+```
+
+# Chapter 3 (Pgs. 49-50)
+
+##  Exercise 1
+```{r}
+filter(flights, arr_delay >= 120)
+```
+```{r}
+filter(flights, dest %in% c("IAH", "HOU"))
+```
+```{r}
+filter(flights, carrier %in% c("UN","AA", "DL"))
+```
+```{r}
+filter(flights, month %in% 7:9)
+```
+```{r}
+filter(flights, dep_delay <= 0, arr_delay > 120)
+```
+```{r}
+filter(flights, dep_delay >= 60, dep_delay - arr_delay > 30)
+```
+```{r}
+filter(flights, dep_time <= 600 | dep_time == 2400)
+```
+
+##  Exercise 2
+
+In part d of exercise 1, we could have done this instead:
+
+```{r}
+filter(flights, between(month, 7, 9))
+```
+In this case, however, it took just about the same amount of code. There are definitely cases that this would be useful though.
+
+##  Exercise 3
+```{r}
+filter(flights, is.na(dep_time))
+```
+
+# Chapter 3 (Pg. 51)
+
+##  Exercise 2
+```{r}
+arrange(flights, desc(dep_delay))
+```
+```{r}
+arrange(flights, dep_delay)
+```
+
+##  Exercise 3
+```{r}
+arrange(flights, air_time)
+```
+
+##  Exercise 4
+```{r}
+arrange(flights, desc(distance))
+```
+```{r}
+arrange(flights, distance)
+```
+
+# Chapter 3 (Pg. 54)
+
+##  Exercise 2
+```{r}
+select(flights, dep_time, dep_time)
+```
+As seen above, when a variable is included more than once, it only is represented only once in the table.
+
+##  Exercise 4
+```{r}
+select(flights, contains("TIME"))
+```
+As seen above, the select helped, "contains", ignored the capitalization of the word. This did surprise me but I can see how it would be useful, as you might not automatically know the capitalization of the variables. If you wanted to change this, you could do this: 
+```{r}
+select(flights, contains("TIME", ignore.case = FALSE))
+```
+
+# Chapter 3 (Pg. 58)
+
+##  Exercise 1
+```{r}
+transmute(flights,
+       dep_min = (dep_time %/% 100 * 60 + dep_time %% 100) %% 1440,
+       sched_dep_min = (sched_dep_time %/% 100 * 60 + sched_dep_time %% 100) %% 1440)
+```
+
+##  Exercise 2
+
+I am expecting to see that air_time is equal to arr_time - dep_time.
+```{r}
+flights %>%
+select(air_time, arr_time, dep_time) %>%
+mutate(air_time_1 = arr_time - dep_time)
+```
+As you can see from the table above, this is not the case. In order to fix this I would need to convert all of the times to minutes since midnight and also take into account that many of the arr_times would not be in the same time zone as the dep_times. This should then give me equal numbers.
+
+##  Exercise 3
+
+I would expect that dep_delay would be equal to dep_time - sched_dep_time.
+```{r}
+flights %>%
+select(dep_time, sched_dep_time, dep_delay) %>%
+mutate(dep_delay_1 = dep_time - sched_dep_time)
+```
+As you can see above, this is true a lot of the time, but there are many cases in which they are not equal.
+
+##  Exercise 4
+
+I wanted to handle ties like normal sports competitions do, so I used the min_rank() function.
+```{r}
+flights %>%
+mutate(dep_delay_rank = min_rank(desc(dep_delay))) %>%
+arrange(desc(dep_delay)) %>%
+select(dep_delay_rank, everything()) %>%
+head(10)
+```

@@ -1,0 +1,104 @@
+---
+title: "Homework 5"
+author: "FIRSTNAME LASTNAME"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  1,3 (Pg. 227); 2 (Pg. 232); 1,2 (Pg. 235); 
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+
+# Chapter 12 (Pg. 227)
+
+##  Exercise 1
+```{r}
+ggplot(gss_cat, aes(rincome)) +
+  geom_bar()
+```
+```{r}
+ggplot(gss_cat, aes(rincome)) +
+  geom_bar() +
+  coord_flip()
+```
+
+The first chart is hard to understand because all of the ranges on the x-axis are overlapping. This is easily fixed by flipping the axes, as done above.
+
+##  Exercise 3
+```{r}
+unique(select(gss_cat, denom))
+
+ggplot(gss_cat, aes(denom)) +
+  geom_bar() +
+  coord_flip()
+```
+
+`denom` applies to Christianity. By looking at the column's unique values above, I was about to determine this. You could also do a horizontal bar chart to see all of the unique denominations.
+
+# Chapter 12 (Pg. 232)
+
+##  Exercise 2
+```{r}
+levels(gss_cat$marital)
+```
+Arbitrary
+
+```{r}
+levels(gss_cat$race)
+```
+Arbitrary
+
+```{r}
+levels(gss_cat$rincome)
+```
+Principled
+
+```{r}
+levels(gss_cat$partyid)
+```
+Principled within parties, but arbitrary between parties.
+
+```{r}
+levels(gss_cat$relig)
+```
+Arbitrary
+
+```{r}
+levels(gss_cat$denom)
+```
+Arbitrary
+
+# Chapter 12 (Pg. 235)
+
+##  Exercise 1
+```{r}
+gss_cat %>%
+  mutate(
+    party = fct_collapse(partyid,
+      Republican = c("Strong republican", "Not str republican"),
+      Democrat = c("Not str democrat", "Strong democrat"),
+      Independent = c("Ind,near rep", "Independent", "Ind,near dem"),
+      Other = c("No answer", "Don't know", "Other party")
+      )
+    ) %>%
+  group_by(year, party) %>%
+  summarize(
+    n = n(),
+  ) %>%
+  ggplot() +
+  geom_smooth(aes(year, n, color = party), se = FALSE)
+```
+
+##  Exercise 2
+
+To collapse `rincome` into a smaller set of categories, you could consolidate “No answer”, “Don’t know”, and “Refused” into a single category. You could also change the income ranges to $5000 increments versus having smaller increments at the lower ranges.

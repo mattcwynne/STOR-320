@@ -1,0 +1,82 @@
+---
+title: "Homework 7"
+author: "Matthew Wynne"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  1,4 (Pg. 358); 1,4 (Pgs. 371)
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+library(modelr)
+options(na.action = na.warn)
+```
+
+
+# Chapter 18 (Pg. 358)
+```{r}
+loess_model = loess(y ~ x, sim1)
+
+loess_grid = sim1 %>%
+  add_predictions(loess_model)
+
+grid = sim1 %>%
+  add_residuals(loess_model, var = "resid_loess") %>%
+  add_predictions(loess_model, var = "pred_loess")
+
+ggplot(data = grid, aes(x, y)) +
+  geom_point() + 
+  geom_line(data = grid, aes(x, pred_loess))
+
+ggplot(data = grid, aes(x, y)) +
+  geom_point() +
+  geom_smooth()
+```
+
+The results of using `loess()` and `geom_smooth()` are exactly the same. This is because `geom_smooth()` uses loess by default, as seen in the message that is printed along with the graph.
+
+##  Exercise 4
+
+Looking at a frequency polygon of absolute residuals allows you to see the residual distribution better that when looking at raw residuals. This is because raw residuals are taken with respect to zero, while the absolute residuals show how frequent the residuals occur.
+
+# Chapter 18 (Pg. 371)
+
+##  Exercise 1
+```{r}
+mod2 = lm(y ~ x - 1, data = sim2)
+mod2_no_intercept = lm(y ~ x, data = sim2)
+
+mod2$coefficients
+mod2_no_intercept$coefficients
+
+grid2 = sim2 %>%
+  data_grid(x) %>%
+  gather_predictions(mod2, mod2_no_intercept)
+
+grid2
+```
+
+According to the data above, removing the intercept from the model causes the model equation's coefficients to change slightly, but the predictions are otherwise unchanged.
+
+##  Exercise 4
+```{r}
+mod1 = lm(y ~ x1 + x2, data = sim4)
+mod2 = lm(y ~ x1 * x2, data = sim4)
+
+grid3 = sim4 %>%
+  gather_residuals(mod1, mod2)
+
+ggplot(data = grid3, aes(x = resid, color = model)) +
+  geom_freqpoly()
+```
+
+The graph above shows the frequency of the residuals from each model. It appears that `mod2` is the better model because its line is consistently lower than the line for `mod1`.

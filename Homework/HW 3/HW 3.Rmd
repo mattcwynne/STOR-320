@@ -1,0 +1,164 @@
+---
+title: "Homework 3"
+author: "Matthew Wynne"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  1,3 (Pgs. 90-91); 1 (Pg. 93); 2,4 (Pg. 99); 1,2 (Pg. 101); 2,3,5 (Pg. 104)
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+library(nycflights13)
+library(lvplot)
+```
+
+# Chapter 5 (Pgs. 90-91)
+
+##  Exercise 1
+```{r}
+ggplot(diamonds, aes(x)) +
+  geom_bar()
+
+ggplot(diamonds, aes(y)) +
+  geom_bar()
+
+ggplot(diamonds, aes(z)) +
+  geom_bar()
+```
+
+The x and y values appear to correspond to the length and width respectively due to their similar frequencies, while the z value has a much larger  frequency, so it appears to correspond to the depth.
+
+##  Exercise 3
+```{r}
+nrow(filter(diamonds, carat == 0.99))
+
+nrow(filter(diamonds, carat == 1))
+```
+
+There are likely not many people that want to purchase a 0.99 carat diamond and would much rather have a 1 carat diamond.
+
+# Chapter 5 (Pg. 93)
+
+##  Exercise 1
+
+```{r}
+count(flights, is.na(dep_time) == TRUE)
+```
+
+```{r}
+ggplot(flights,aes(dep_time)) +
+  geom_bar()
+```
+
+```{r}
+ggplot(flights, aes(dep_time)) +
+  geom_histogram()
+```
+
+It appears that in a bar chart there are no bins so the missing data is easily visible, while in a histogram there are bins, so the missing data is not visible. Changing the bin widths would result in a chart to the bar chart.
+
+# Chapter 5 (Pg. 99)
+
+##  Exercise 2
+```{r}
+ggplot(diamonds, aes(price, carat)) +
+  geom_point()
+```
+
+```{r}
+ggplot(diamonds, aes(cut, carat)) +
+  geom_point()
+```
+
+```{r}
+ggplot(diamonds, aes(carat, price)) +
+  geom_point() +
+  facet_grid(~cut)
+```
+
+It appears that the carat variable is most important for predicting the price of a diamond. Lower quality diamonds tend to be heavier, leading to a higher carat, and therefore higher price.
+
+##  Exercise 4
+```{r}
+ggplot(diamonds, aes(cut, price)) +
+  geom_lv()
+```
+
+It appears that the thicker the plot is, the more instances are contained in that part of the distribution. From this, you can see that the distribution for better cut diamonds is wider than for worse cut ones. 
+
+# Chapter 5 (Pg. 101)
+
+##  Exercise 1
+```{r}
+count(diamonds, color, cut)
+```
+
+```{r}
+diamonds %>%
+  count(color, cut) %>%
+  group_by(color) %>%
+  mutate(prop = n / sum(n)) %>%
+  ggplot(aes(color, cut)) +
+    geom_tile(aes(fill = prop))
+```
+
+```{r}
+diamonds %>%
+  count(color, cut) %>%
+  group_by(cut) %>%
+  mutate(prop = n / sum(n)) %>%
+  ggplot(aes(color, cut)) +
+    geom_tile(aes(fill = prop))
+```
+
+The distribution of the count dataset can be more clearly visualized by using the proportion of cut in color and color in cut.
+
+##  Exercise 2
+```{r}
+flights %>%
+  group_by(month, dest) %>%
+  mutate(mean_delay = mean(dep_delay, na.rm = TRUE)) %>%
+  ggplot(aes(month, dest)) +
+    geom_tile(aes(fill = mean_delay))
+```
+
+This plot is difficult to read because there are many missing values and there are too destinations labels. In order to improve this, you can remove the missing values and organize the destinations by distance from the origin instead of the exact airport.
+
+# Chapter 5 (Pg. 104)
+
+##  Exercise 2
+```{r}
+ggplot(diamonds, aes(cut_number(price, 15), carat)) +
+  geom_boxplot() +
+  coord_flip() +
+  xlab("price")
+```
+
+##  Exercise 3
+
+```{r}
+ggplot(diamonds, aes(cut_width(carat, 0.5, boundary = 0), price)) +
+  geom_boxplot() +
+  coord_flip() +
+  xlab('carat')
+```
+
+For small diamonds and very large diamonds, the price does not vary by much, while for medium sized diamonds, the price varies by a lot. I had never really thought about the price distribution of diamonds before so I didn't know what to expect, but the results make sense to me.
+
+##  Exercise 5
+```{r}
+ggplot(diamonds) +
+  geom_point(mapping = aes(x = x, y = y)) +
+  coord_cartesian(xlim = c(4, 11), ylim = c(4, 11))
+```
+
+There appears to be a strong positive relationship between x and y. With the scatterplot, you are able to see the outliers of this relationship very clearly. A bar chart would not be useful for this because it would show a count and the outliers would not be very clear.

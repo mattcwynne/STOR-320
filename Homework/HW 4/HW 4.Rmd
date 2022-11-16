@@ -1,0 +1,169 @@
+---
+title: "Homework 4"
+author: "Matthew Wynne"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instructions
+
+**Exercises:**  2,3 (Pg. 151); 2,4 (Pg. 156); 1,2 (Pgs. 160-161); 2 (Pg. 163); 2,3,4 (Pg. 168)
+
+**Submission:** Submit via an electronic document on Sakai. Must be submitted as a HTML file generated in RStudio. All assigned problems are chosen according to the textbook *R for Data Science*. You do not need R code to answer every question. If you answer without using R code, delete the code chunk. If the question requires R code, make sure you display R code. If the question requires a figure, make sure you display a figure. A lot of the questions can be answered in written response, but require R code and/or figures for understanding and explaining.
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+
+# Chapter 9 (Pg. 151)
+
+```{r}
+table2
+```
+
+##  Exercise 2
+```{r}
+cases2 = table2 %>%
+  filter(type == "cases")
+
+pop2 = table2 %>%
+  filter(type == "population")
+
+table2_cases_per_cap = tibble(
+  country = cases2$country,
+  year = cases2$year,
+  cases = cases2$count,
+  population = pop2$count,
+  cases_per_capita = (cases / population) * 10000)
+
+table2_cases_per_cap
+```
+```{r}
+table4 = tibble(
+  country = table4a$country,
+  `1999` = table4a$`1999` / table4b$`1999`,
+  `2000` = table4a$`2000` / table4b$`2000`)
+
+table4
+```
+`table4a` and `table4b` were easier to work with since you could find the rate in one step, while `table2` was harder because you had to split up the count variable into both cases and population and then you could find the rate.
+
+##  Exercise 3
+```{r}
+ggplot(table2_cases_per_cap, aes(year, cases, color = country)) +
+  geom_point() +
+  geom_line()
+```
+In order to do plot this with `table2`, you had to make cases its own column in the data frame, which we previously did in exercise 2.
+
+# Chapter 9 (Pg. 156)
+
+##  Exercise 2
+```{r}
+table4a %>%
+  gather(`1999`, `2000`, key = "year", value = "cases")
+```
+There needs to be back ticks (``) around the years since they are column names, otherwise it will try to select the 1999th and 2000th columns.
+
+##  Exercise 4
+```{r}
+preg <- tribble(
+~pregnant, ~male, ~female, "yes", NA, 10, "no", 20, 12
+)
+preg
+```
+```{r}
+gather(preg, key = gender, value =  value, male:female, na.rm = TRUE)
+```
+I used `gather()` to create a new column, `gender`, and remove the missing value for males. The variables are now `pregnant`, `gender`, and `value`.
+
+# Chapter 9 (Pgs. 160-161)
+
+##  Exercise 1
+```{r}
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>%
+  separate(x, c("one", "two", "three"))
+```
+For this one, the `extra` argument in `separate()` gives a warning that too many pieces were given, and automatically drops the "g".
+
+```{r}
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>%
+  separate(x, c("one", "two", "three"))
+```
+For this one, the `fill` argument in `separate()` gives a warning that not enough pieces were given, and automatically it in with an "NA".
+
+##  Exercise 2
+```{r}
+tibble(x = c("a,b,c", "d,e,f", "g,h,i")) %>%
+  separate(x, c("one", "two", "three"), remove = FALSE)
+```
+The `remove` argument in `unite()` and `separate()` is automatically set to true and removes the input column. In the example above, when `remove` is set to `FALSE`, the input column, `x`, remains in the data frame.
+
+# Chapter 9 (Pg. 163)
+
+##  Exercise 2
+```{r}
+tibble(x = c("a,b,c", "d", "g,h,i")) %>%
+  separate(x, c("one", "two", "three"), fill = "left")
+```
+```{r}
+tibble(x = c("a,b,c", "d", "g,h,i")) %>%
+  separate(x, c("one", "two", "three"), fill = "right")
+```
+As you can see above, when `fill = "left"`, the NAs are added to the left-most columns. When `fill = "right"`, the NAs are added to the right-most columns.
+
+# Chapter 9 (Pg. 168)
+
+##  Exercise 2
+```{r}
+who2 = who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>%
+  mutate(
+        code = stringr::str_replace(code, "newrel", "new_rel")
+      ) %>%
+  separate(code, c("new", "var", "sexage")) %>%
+  select(-new, -iso2, -iso3) %>%
+  separate(sexage, c("sex", "age"), sep = 1)
+
+who2
+```
+```{r}
+who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>%
+  separate(code, c("new", "var", "sexage")) %>%
+  select(-new, -iso2, -iso3) %>%
+  separate(sexage, c("sex", "age"), sep = 1)
+```
+When we neglect the `mutate()` step, we are given an error from `separate()` that we have too few values.
+
+```{r}
+who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>%
+  separate(code, c("new", "var", "sexage")) %>%
+  filter(new == "newrel") %>%
+  head(5)
+```
+Looking at the above code, you can see that when we skip the `mutate()` step, `sexage` is completely empty, and all of it's data is contained in `var`.
+
+##  Exercise 3
+```{r}
+who %>%
+  select(country, iso2, iso3) %>%
+  distinct()
+```
+As you can see, all of the above are just different representations of the same countries in the data set.
+
+##  Exercise 4
+```{r}
+who2 %>%
+  group_by(country, year, sex) %>%
+  filter(year > 1995) %>%
+  summarize(cases = sum(value)) %>%
+  unite(country_sex, country, sex, remove = FALSE) %>%
+  ggplot(aes(year, cases, group = country_sex, color = sex)) +
+    geom_line()
+```

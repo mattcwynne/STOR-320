@@ -1,0 +1,41 @@
+---
+title: "Lab 12: Work on Final Project"
+author: "Matthew Wynne"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=F)
+options(scipen=999)
+library(tidyverse)
+```
+
+# Introduction
+
+In this lab, you will work on the final paper with your groups. As you are doing the work with your groups, take notes so you can provide answers to the following questions. Each group member will have to complete one of these forms.
+
+## Q1 (4 Points)
+
+**What individual contributions have you made to the group project?**
+
+- Met with Mario to discuss the project proposal
+- Figured out a time during the week that my group could consistently meet on to work on the project
+- Made several different graphs for proposal and improved them for the EDA
+- Made animated plots for the final paper
+
+## Q2 (4 Points)
+
+**What was the most difficult aspect of the group project?**
+
+- Getting the data to work correctly for my graphs
+- Getting the animated plots to actually animate
+- Interpreting the data without making invalid conclusions
+
+## Q3 (2 Points)
+
+**What suggestions do you have to make the group project better for the future?**
+
+- I would suggest giving more assigned tasks to each individual position. After the project proposal meeting I felt like I didn't have a set thing that I was supposed to be working on. Giving more tasks would help to prevent that.
+- I think that it makes more sense for the Orators to be in charge of designing the slides, as they are the ones actually presenting the information.
+
